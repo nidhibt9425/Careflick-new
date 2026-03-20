@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Careflick Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function App() {
+            const [users, setUsers] = useState([]);
+            const [loading, setLoading] = useState(true);
+            const [tab, setTab] = useState('users');
+
+            useEffect(() => {
+                fetch('https://jsonplaceholder.typicode.com/users')
+                    .then(res => res.json())
+                    .then(data => {
+                        setUsers(data);
+                        setLoading(false);
+                    })
+                    .catch(() => setLoading(false));
+            }, []);
+
+            if (loading) return <div className="p-10 text-center font-bold text-blue-600">Loading Dashboard...</div>;
+
+            return (
+                <div className="min-h-screen">
+                    <nav className="bg-white shadow p-4 flex justify-center gap-4 sticky top-0 z-10">
+                        <button onClick={() => setTab('users')} className={`px-6 py-2 rounded-lg font-bold ${tab === 'users' ? 'bg-blue-600 text-white' : 'text-gray-600'}`}>Users</button>
+                        <button onClick={() => setTab('forms')} className={`px-6 py-2 rounded-lg font-bold ${tab === 'forms' ? 'bg-blue-600 text-white' : 'text-gray-600'}`}>Care Forms</button>
+                    </nav>
+
+                    <div className="p-6 max-w-4xl mx-auto">
+                        {tab === 'users' ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {users.map(u => (
+                                    <div key={u.id} className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                                        <h3 className="font-bold text-gray-800">{u.name}</h3>
+                                        <p className="text-gray-500 text-sm">{u.email}</p>
+                                        <p className="text-blue-500 text-xs mt-2 font-semibold uppercase">{u.phone}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="bg-white p-8 rounded-2xl shadow-lg max-w-md mx-auto">
+                                <h2 className="text-xl font-bold mb-4 text-gray-800">New Care Form</h2>
+                                <label className="block text-sm mb-2 font-medium">Select Patient</label>
+                                <select className="w-full p-2 border rounded mb-4 bg-gray-50">
+                                    {users.map(u => <option key={u.id}>{u.name}</option>)}
+                                </select>
+                                <button className="w-full bg-blue-600 text-white p-3 rounded-xl font-bold shadow-lg shadow-blue-100" onClick={() => alert('Form Submitted!')}>Submit to Careflick</button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
