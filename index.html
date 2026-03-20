@@ -19,6 +19,8 @@
             const [users, setUsers] = useState([]);
             const [loading, setLoading] = useState(true);
             const [tab, setTab] = useState('users');
+            // 1. Search ke liye state add ki
+            const [searchTerm, setSearchTerm] = useState('');
 
             useEffect(() => {
                 fetch('https://jsonplaceholder.typicode.com/users')
@@ -29,6 +31,12 @@
                     })
                     .catch(() => setLoading(false));
             }, []);
+
+            // 2. Filter logic add kiya
+            const filteredUsers = users.filter(user => 
+                user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                user.email.toLowerCase().includes(searchTerm.toLowerCase())
+            );
 
             if (loading) return <div className="p-10 text-center font-bold text-blue-600">Loading Dashboard...</div>;
 
@@ -41,23 +49,42 @@
 
                     <div className="p-6 max-w-4xl mx-auto">
                         {tab === 'users' ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                {users.map(u => (
-                                    <div key={u.id} className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-                                        <h3 className="font-bold text-gray-800">{u.name}</h3>
-                                        <p className="text-gray-500 text-sm">{u.email}</p>
-                                        <p className="text-blue-500 text-xs mt-2 font-semibold uppercase">{u.phone}</p>
-                                    </div>
-                                ))}
+                            <div>
+                                {/* Search Bar Input */}
+                                <div className="mb-6">
+                                    <input 
+                                        type="text" 
+                                        placeholder="Search by name or email..." 
+                                        className="w-full p-3 border-2 border-blue-100 rounded-xl shadow-sm outline-none focus:border-blue-500 transition-all"
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    {filteredUsers.length > 0 ? (
+                                        filteredUsers.map(u => (
+                                            <div key={u.id} className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                                                <h3 className="font-bold text-gray-800">{u.name}</h3>
+                                                <p className="text-gray-500 text-sm">{u.email}</p>
+                                                <p className="text-blue-500 text-xs mt-2 font-semibold uppercase">{u.phone}</p>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="col-span-full text-center py-10 text-gray-400">
+                                            No users found for "{searchTerm}"
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         ) : (
-                            <div className="bg-white p-8 rounded-2xl shadow-lg max-w-md mx-auto">
+                            <div className="bg-white p-8 rounded-2xl shadow-lg max-w-md mx-auto border border-blue-50">
                                 <h2 className="text-xl font-bold mb-4 text-gray-800">New Care Form</h2>
-                                <label className="block text-sm mb-2 font-medium">Select Patient</label>
-                                <select className="w-full p-2 border rounded mb-4 bg-gray-50">
-                                    {users.map(u => <option key={u.id}>{u.name}</option>)}
+                                <label className="block text-sm mb-2 font-medium text-gray-600">Select Patient</label>
+                                <select className="w-full p-2 border rounded mb-4 bg-gray-50 outline-none">
+                                    {users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
                                 </select>
-                                <button className="w-full bg-blue-600 text-white p-3 rounded-xl font-bold shadow-lg shadow-blue-100" onClick={() => alert('Form Submitted!')}>Submit to Careflick</button>
+                                <button className="w-full bg-blue-600 text-white p-3 rounded-xl font-bold shadow-lg shadow-blue-100 active:scale-95 transition-transform" onClick={() => alert('Form Submitted!')}>Submit to Careflick</button>
                             </div>
                         )}
                     </div>
